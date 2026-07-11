@@ -19,18 +19,24 @@ tab1, tab2 = st.tabs(["➕ Add New NGO", "📋 Manage Existing NGOs"])
 with tab1:
     st.subheader("Register a New NGO")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        name = st.text_input("NGO Name*")
-        category = st.selectbox("Category", ["Education", "Health", "Environment", "Poverty Relief", "Disaster Relief", "Animal Welfare", "Other"])
-        registration_number = st.text_input("Government Registration Number*")
-        contact_email = st.text_input("Contact Email*")
-    with col2:
-        contact_phone = st.text_input("Contact Phone")
-        services = st.text_area("Services Offered (comma-separated)", placeholder="e.g., Child Education, Medical Camps, Food Distribution")
-        description = st.text_area("Short Description", placeholder="What does this NGO do? Their mission, past work, etc.")
+    with st.form("add_ngo_form", clear_on_submit=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            name = st.text_input("NGO Name*")
+            category = st.selectbox(
+                "Category",
+                ["Education", "Health", "Environment", "Poverty Relief", "Disaster Relief", "Animal Welfare", "Other"]
+            )
+            registration_number = st.text_input("Government Registration Number*")
+            contact_email = st.text_input("Contact Email*")
+        with col2:
+            contact_phone = st.text_input("Contact Phone")
+            services = st.text_area("Services Offered (comma-separated)", placeholder="e.g., Child Education, Medical Camps, Food Distribution")
+            description = st.text_area("Short Description", placeholder="What does this NGO do? Their mission, past work, etc.")
 
-    if st.button("✅ Register NGO", use_container_width=True):
+        submitted = st.form_submit_button("✅ Register NGO", use_container_width=True)
+
+    if submitted:
         if not (name and registration_number and contact_email):
             st.error("⚠️ Please fill all required fields (marked with *).")
         else:
@@ -46,11 +52,13 @@ with tab1:
                     """, (name, category, registration_number, contact_email, contact_phone, services, description))
                     conn.commit()
                     st.success(f"✅ '{name}' has been registered successfully!")
-                    st.rerun()
             except Exception as e:
                 st.error(f"Database error: {e}")
             finally:
                 cursor.close()
+               
+
+             
 
 # ---------------- TAB 2: MANAGE NGOs ----------------
 with tab2:

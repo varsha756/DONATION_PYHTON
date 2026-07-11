@@ -11,6 +11,8 @@ if not st.session_state.get("logged_in") or st.session_state.get("user_role") !=
     st.warning("⚠️ This page is only for NGO Admins. Please log in with an NGO account.")
     st.stop()
 
+st.write("DEBUG — logged in as:", st.session_state.get("user_email"), "| role:", st.session_state.get("user_role"))
+
 UPLOAD_DIR = "uploads/fund_report_proofs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
