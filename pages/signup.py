@@ -11,8 +11,8 @@ st.markdown("<h2 style='text-align:center;color:#2E86C1;'>📝 Create Account</h
 
 
 def send_verification_email(email, code):
-    sender = "your_real_gmail@gmail.com"
-    app_password = "abcdefghijklmnop"  # the 16-char app password, no spaces"
+    sender = st.secrets["email"]["sender"]
+    app_password = st.secrets["email"]["app_password"]
     msg = MIMEText(f"Your Transparency Checker verification code is: {code}")
     msg["Subject"] = "Email Verification"
     msg["From"] = sender
@@ -43,7 +43,7 @@ if st.button("Sign Up"):
         else:
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT user_id FROM users WHERE email=%s", (email,))
+                cursor.execute("SELECT user_id FROM users WHERE email=?", (email,))
                 if cursor.fetchone():
                     st.error("❌ An account with this email already exists.")
                 else:
@@ -51,8 +51,8 @@ if st.button("Sign Up"):
                     code = str(random.randint(100000, 999999))
 
                     cursor.execute(
-                        "INSERT INTO users (username, email, password, role, is_verified, verification_code) VALUES (%s,%s,%s,%s,%s,%s)",
-                        (username, email, hashed_pw.decode("utf-8"), role, False, code)
+                        "INSERT INTO users (username, email, password, role, is_verified, verification_code) VALUES (?,?,?,?,?,?)",
+                        (username, email, hashed_pw.decode("utf-8"), role, 0, code)
                     )
                     conn.commit()
 

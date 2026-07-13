@@ -46,7 +46,7 @@ if conn is None:
     st.error("❌ Could not connect to the database.")
     st.stop()
 
-cursor = conn.cursor(dictionary=True)
+cursor = conn.cursor()
 cursor.execute("SELECT id, name, category, transparency_score, image_path, upi_id FROM ngos ORDER BY transparency_score DESC")
 ngos = cursor.fetchall()
 cursor.close()
@@ -88,7 +88,7 @@ with col1:
     note = st.text_input("Note (optional)", placeholder="e.g., For flood relief campaign")
 
 with col2:
-    upi_id = selected_ngo.get("upi_id") or "demo@upi"
+    upi_id = selected_ngo["upi_id"] or "demo@upi"
     upi_string = f"upi://pay?pa={upi_id}&pn={selected_ngo['name'].replace(' ', '%20')}&am={amount:.2f}&cu=INR&tn=Donation"
 
     qr_img = qrcode.make(upi_string)
@@ -117,7 +117,7 @@ def build_receipt_pdf(donor_name, donor_email, ngo, amount, note, receipt_no):
 
     story = []
     story.append(Paragraph(ngo["name"], title_style))
-    story.append(Paragraph(ngo.get("category", ""), sub_style))
+    story.append(Paragraph(ngo["category"] or "", sub_style))
     story.append(HRFlowable(width="100%", thickness=1.2, color=colors.HexColor("#1B4332")))
     story.append(Spacer(1, 10))
     story.append(Paragraph("DONATION RECEIPT", ParagraphStyle("RT", parent=styles["Heading1"], fontSize=15, alignment=TA_CENTER, spaceAfter=14)))
@@ -175,11 +175,11 @@ if st.button("✅ I've Paid — Confirm Donation", use_container_width=True):
             cur = conn.cursor()
             cur.execute("""
                 INSERT INTO donations (donor_email, ngo_id, amount, payment_proof_path, note)
-                VALUES (%s,%s,%s,%s,%s)
+                VALUES (?,?,?,?,?)
             """, (st.session_state["user_email"], selected_ngo["id"], amount, proof_path, note))
             conn.commit()
             donation_id = cur.lastrowid
-            cur.execute("UPDATE ngos SET total_received = total_received + %s WHERE id=%s", (amount, selected_ngo["id"]))
+            cur.execute("UPDATE ngos SET total_received = total_received + ? WHERE id=?", (amount, selected_ngo["id"]))
             conn.commit()
             cur.close()
 

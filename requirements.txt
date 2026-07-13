@@ -1,8 +1,8 @@
 streamlit
 streamlit-lottie
-mysql-connector-python
 pandas
 numpy
 bcrypt
 qrcode
 plotly
+reportlab
