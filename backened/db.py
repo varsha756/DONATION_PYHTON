@@ -1,9 +1,4 @@
-import mysql.connector
-
-def connect_db():
-    try:
-        conn = mysql.connector.connect(
-        import sqlite3
+import sqlite3
 import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "donation_checker.db")
@@ -54,12 +49,4 @@ def _init_tables(conn):
             FOREIGN KEY (ngo_id) REFERENCES ngos(id)
         )
     """)
-    conn.commit()    host="localhost",
-            user="root",
-            password="vasu06",
-            database="donation_checker"
-        )
-        return conn
-    except mysql.connector.Error as err:
-        print("❌ Error:", err)
-        return None
+    conn.commit()
