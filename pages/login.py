@@ -63,29 +63,20 @@ if st.button("Register"):
 # Verification step
 verification_code = st.text_input("Enter Verification Code")
 if st.button("Verify Email"):
-    conn = connect_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email=%s AND verification_code=%s", (email, verification_code))
-    user = cursor.fetchone()
-if user:
+    try:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT * FROM users WHERE email=%s AND verification_code=%s",
+            (email, verification_code)
+        )
+        user = cursor.fetchone()
 
-    cursor.execute("UPDATE users SET is_verified=TRUE WHERE email=%s", (email,))
-    conn.commit()
-
-    # Set session state FIRST, before navigating anywhere
-    st.session_state["logged_in"] = True
-    st.session_state["user_email"] = email
-    st.session_state["user_role"] = role   # "Donor", "NGO Admin", or "Admin"
-
-    st.success("🎉 Email verified and logged in!")
-
-    # THEN route based on role
-    if role == "Admin":
-        st.switch_page("pages/admin.py")
-    elif role == "NGO Admin":
-        st.switch_page("pages/ngo_donations.py")
-    else:
-        st.switch_page("pages/donate.py")
-else:
-    st.error("❌ Invalid verification code.")
-       
+        if user:
+            cursor.execute("UPDATE users SET is_verified=TRUE WHERE email=%s", (email,))
+            conn.commit()
+            st.success("Email verified successfully!")
+        else:
+            st.error("Invalid verification code.")
+    except Exception as e:
+        st.error(f"Database error: {e}")
